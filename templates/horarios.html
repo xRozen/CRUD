@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Materias</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #003366;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        .welcome-text {
+            font-size: 1.2rem;
+            margin-left: 15px;
+        }
+        .dropdown-menu {
+            min-width: 100px;
+        }
+        .empty-message {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .table-responsive {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .btn-unam {
+            background-color: #D4AF37;
+            color: #003366;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra superior -->
+    <div class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="welcome-text">Bienvenid@ {{ alumno_nombre }}</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" 
+                            id="dropdownMenuButton" data-bs-toggle="dropdown">
+                        Menú
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/horarios-disponibles">Horarios disponibles</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/cambiar-contrasena">Cambiar contraseña</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container">
+        <h2 class="mb-4">Mis Materias Inscritas</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if not materias %}
+            <div class="empty-message">
+                <h4 class="mb-3">No tienes materias inscritas aún</h4>
+                <a href="/horarios-disponibles" class="btn btn-unam">
+                    Ver horarios disponibles
+                </a>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Materia</th>
+                            <th>Profesor</th>
+                            <th>Salón</th>
+                            <th>Día</th>
+                            <th>Horario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for materia in materias %}
+                        <tr>
+                            <td>{{ materia.nombre_asg }}</td>
+                            <td>{{ materia.profesor }}</td>
+                            <td>{{ materia.salon }}</td>
+                            <td>{{ materia.dia }}</td>
+                            <td>{{ materia.hrs_inicio }} - {{ materia.hrs_fin }}</td>
+                            <td>
+                                <form action="/baja/{{ materia.id_insc }}" method="POST" style="display: inline;">
+                                    <input type="hidden" name="_method" value="POST">
+                                    <button type="submit" class="btn btn-sm btn-danger" 
+                                            onclick="return confirm('¿Dar de baja {{ materia.nombre_asg }}?')">
+                                        Dar de baja
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

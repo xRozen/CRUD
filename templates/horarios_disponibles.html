@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horarios Disponibles</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #003366;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        .welcome-text {
+            font-size: 1.2rem;
+            margin-left: 15px;
+        }
+        .dropdown-menu {
+            min-width: 100px;
+        }
+        .table-responsive {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .btn-inscribir {
+            background-color: #D4AF37;
+            color: #003366;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra superior -->
+    <div class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="welcome-text">Bienvenido, {{ alumno_nombre }}</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" 
+                            id="dropdownMenuButton" data-bs-toggle="dropdown">
+                        Menú
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/horarios">Mis materias</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Horarios Disponibles</h2>
+            <a href="/horarios" class="btn btn-outline-primary">
+                ← Volver a mis materias
+            </a>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Materia</th>
+                        <th>Horario</th>
+                        <th>Profesor</th>
+                        <th>Salón/Cupo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for horario in horarios %}
+                    <tr>
+                        <td>{{ horario.nombre_asg }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark">
+                                {{ horario.dia }} {{ horario.hrs_inicio }}-{{ horario.hrs_fin }}
+                            </span>
+                        </td>
+                        <td>{{ horario.profesor }}</td>
+                        <td>
+                            {{ horario.salon }}<br>
+                            <small class="text-muted">
+                                {{ horario.inscritos }} / {{ horario.cupo }} alumnos
+                            </small>
+                        </td>
+                        <td>
+                            {% if horario.id_hrs in inscripciones %}
+                                <span class="badge bg-info text-dark">Ya inscrito</span>
+                            {% elif horario.inscritos >= horario.cupo %}
+                                <span class="badge bg-secondary">Sin cupo</span>
+                            {% else %}
+                                <a href="/inscribir/{{ horario.id_hrs }}" 
+                                   class="btn btn-sm btn-inscribir"
+                                   onclick="return confirm('¿Confirmar inscripción en {{ horario.nombre_asg }}?')">
+                                    Inscribir
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
